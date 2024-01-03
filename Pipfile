@@ -10,6 +10,8 @@ flask-caching = "*"
 requests = "*"
 urllib3 = "*"
 redis = "*"
+matplotlib = "*"
+numpy = "*"
 
 [dev-packages]
 
