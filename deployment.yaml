@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-redis-svc
+  namespace: flask-redis
+spec:
+  selector: 
+    app.kubernetes.io/name: flask-redis-deploy
+  ports:
+    - name: default
+      port: 5000
+      targetPort: 5000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-redis-deploy
+  namespace: flask-redis
+  labels:
+    app.kubernetes.io/name: flask-redis-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-redis
+  template:
+    metadata:
+      labels:
+        app: flask-redis
+    spec:
+      containers:
+        - name: flask-container
+          image: dorkamotorka/flask-redis-demo
+          env:
+            - name: CACHE_DEFAULT_TIMEOUT
+              value: "500"
+            - name: CACHE_REDIS_DB
+              value: "0"
+            - name: CACHE_REDIS_HOST
+              value: "redis"
+            - name: CACHE_REDIS_PORT
+              value: "6379"
+            - name: CACHE_REDIS_URL
+              value: "redis://127.0.0.1:6379"
+            - name: CACHE_TYPE
+              value: "redis"
+          ports:
+            - containerPort: 5000
+              protocol: TCP
+          resources: {}
+        - name: redis-sidecar
+          image: redis
+          ports:
+            - containerPort: 6379
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
